@@ -1,3 +1,5 @@
+import { Model } from 'mongoose'
+
 export type TOrders = {
   productName: string
   price: number
@@ -23,4 +25,9 @@ export type TUser = {
   address?: TAddress
   isActive: boolean
   orders?: TOrders
+}
+
+export interface UserModel extends Model<TUser> {
+  // eslint-disable-next-line no-unused-vars
+  generatedId(getId: number): Promise<void>
 }

@@ -1,5 +1,5 @@
 import { Schema, model } from 'mongoose'
-import { TAddress, TOrders, TUser } from './User.interface'
+import { TAddress, TOrders, TUser, UserModel } from './User.interface'
 import validator from 'validator'
 
 const OrdersSchema = new Schema<TOrders>({
@@ -16,7 +16,7 @@ const FullNameSchema = new Schema({
   firstName: { type: String, required: true },
   lastName: { type: String, required: true }
 })
-const UserSchema = new Schema<TUser>(
+const UserSchema = new Schema<TUser, UserModel>(
   {
     userId: { type: Number, required: true, unique: true },
     fullName: { type: FullNameSchema, required: true },
@@ -41,6 +41,21 @@ const UserSchema = new Schema<TUser>(
   },
   { versionKey: false }
 )
+// Static Method To Generate userId if not provided in input
+UserSchema.statics.generatedId = async function (gid) {
+  try {
+    const lastId = await User.findOne().sort('-userId').exec()
+    if (!gid && !lastId) {
+      return 1
+    } else if (!gid && lastId) {
+      return lastId.userId + 1
+    } else {
+      return +gid
+    }
+  } catch (error) {
+    return new Error('Can Not Generated ID')
+  }
+}
 
 // Model User
-export const User = model<TUser>('User', UserSchema)
+export const User = model<TUser, UserModel>('User', UserSchema)
