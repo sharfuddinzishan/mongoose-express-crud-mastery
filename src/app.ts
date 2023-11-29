@@ -1,5 +1,6 @@
 import express, { Application, NextFunction, Request, Response } from 'express'
 import cors from 'cors'
+import { userRouters } from './app/modules/User/User.router'
 import { dbconnect } from './utill/dbconnect'
 
 const app: Application = express()
@@ -11,24 +12,28 @@ app.use(express.text())
 // Middleware
 app.use(cors())
 
-// Database Connect
+// dbconnect
 dbconnect()
 
 const logger = (req: Request, res: Response, next: NextFunction) => {
+  console.log('Logger')
   next()
 }
 
+// Routers
+app.use('/api/v1', userRouters)
+
 app.get('/', logger, (req: Request, res: Response) => {
-  res.status(200).json({
+  res.status(400).json({
     success: true,
-    message: 'Site Works Fine Now'
+    message: 'Welcome To Our Site'
   })
 })
 
 app.all('**', (req: Request, res: Response) => {
-  res.status(400).json({
-    message: 'Unauthorized Action',
-    success: false
+  res.status(200).json({
+    success: false,
+    message: 'Invalid URL'
   })
 })
 

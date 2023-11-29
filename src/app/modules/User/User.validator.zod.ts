@@ -16,20 +16,20 @@ const OrdersValidator = z.object({
 
 const AddressValidator = z
   .object({
-    street: z
-      .string({ invalid_type_error: 'Expected Street, Received Only Number' })
-      .length(3, 'Too Much Short Street'),
-    city: z
-      .string({ invalid_type_error: 'Expected City, Received Only Number' })
-      .length(3, 'Too Much Short City'),
-    country: z
-      .string({ invalid_type_error: 'Expected Country, Received Only Number' })
-      .length(3, 'Too Much Short Country')
+    street: z.string({
+      invalid_type_error: 'Expected Street, Received Only Number'
+    }),
+    city: z.string({
+      invalid_type_error: 'Expected City, Received Only Number'
+    }),
+    country: z.string({
+      invalid_type_error: 'Expected Country, Received Only Number'
+    })
   })
   .refine(
     function (obj) {
       return (
-        obj.city.length > 3 && obj.country.length > 3 && obj.street.length > 3
+        obj.city.length > 1 && obj.country.length > 1 && obj.street.length > 1
       )
     },
     { message: 'City/Street/Country Wrong Input' }
@@ -63,7 +63,7 @@ export const UserZodValidator = z
       .string({ invalid_type_error: 'Email Should Not Only Digits!' })
       .email({ message: 'Email Invalid' })
       .min(6, 'Too Much Short Email'),
-    userName: z
+    username: z
       .string({ invalid_type_error: 'User Name Should Not Be Only Digits!' })
       .min(2, 'User Name Missing or Too Much Short'),
     password: z
@@ -80,6 +80,6 @@ export const UserZodValidator = z
       .max(10, 'You Can Only Add Ten Hobbies'),
     address: AddressValidator.optional(),
     isActive: z.boolean().default(true),
-    orders: z.array(OrdersValidator).optional()
+    orders: z.array(OrdersValidator)
   })
   .strict()
