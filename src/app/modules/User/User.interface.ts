@@ -3,22 +3,24 @@ export type TOrders = {
   price: number
   quantity: number
 }
+export type TAddress = {
+  street: string
+  city: string
+  country: string
+}
+export type TFullName = {
+  firstName: string
+  lastName: string
+}
 export type TUser = {
   userId: number
-  fullName: {
-    firstName: string
-    lastName: string
-  }
+  fullName: TFullName
   email: string
   username: string
   password: string
-  age: number
+  age?: number
   hobbies: string[]
-  address: {
-    street: string
-    city: string
-    country: string
-  }
+  address?: TAddress
   isActive: boolean
-  orders: TOrders
+  orders?: TOrders
 }
