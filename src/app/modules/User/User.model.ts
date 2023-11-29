@@ -4,8 +4,8 @@ import validator from 'validator'
 
 const OrdersSchema = new Schema<TOrders>({
   productName: { type: String, required: true },
-  price: { type: Number, min: 1, default: 0 },
-  quantity: { type: Number, min: 1, default: 0 }
+  price: { type: Number, min: 1, default: 1 },
+  quantity: { type: Number, min: 1, default: 1 }
 })
 const AddressSchema = new Schema<TAddress>({
   street: { type: String, required: true },
@@ -34,7 +34,7 @@ const UserSchema = new Schema<TUser>(
     username: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     age: { type: Number, min: 1 },
-    hobbies: { type: [String], default: [] },
+    hobbies: { type: [String], min: 2 },
     address: { type: AddressSchema },
     isActive: { type: Boolean, default: true },
     orders: { type: OrdersSchema }
