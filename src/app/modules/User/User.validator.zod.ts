@@ -41,6 +41,12 @@ const FullNameValidator = z.object({
       invalid_type_error: 'Expected First Name But Received Only Number'
     })
     .min(2, 'First Name Too Much Short')
+    .max(50, 'First Name Length Limit Exceed'),
+  lastName: z
+    .string({
+      invalid_type_error: 'Expected First Name But Received Only Number'
+    })
+    .min(2, 'First Name Too Much Short')
     .max(50, 'First Name Length Limit Exceed')
 })
 
@@ -61,13 +67,8 @@ export const UserZodValidator = z
       .string({ invalid_type_error: 'User Name Should Not Be Only Digits!' })
       .min(2, 'User Name Missing or Too Much Short'),
     password: z
-      .number({ invalid_type_error: 'Password Should Be Only Digits!' })
-      .refine(
-        function (v) {
-          return v.toString().length >= 4
-        },
-        { message: 'Password Must Be More Than Four Digits' }
-      ),
+      .string({ invalid_type_error: 'Check Password Type String or Not' })
+      .min(3, 'Password Must Be More Than Four Digits'),
     age: z
       .number({ invalid_type_error: 'Age Should Be Non-Zero Positive!' })
       .positive()
@@ -76,9 +77,9 @@ export const UserZodValidator = z
       .string()
       .array()
       .min(2, 'Add Minimum Two Hobbies')
-      .max(5, 'You Can Only Add Five Hobbies'),
-    isActive: z.boolean().default(true),
+      .max(10, 'You Can Only Add Ten Hobbies'),
     address: AddressValidator.optional(),
+    isActive: z.boolean().default(true),
     orders: z.array(OrdersValidator).optional()
   })
   .strict()

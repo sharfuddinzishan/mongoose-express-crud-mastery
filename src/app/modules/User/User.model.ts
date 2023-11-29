@@ -32,9 +32,9 @@ const UserSchema = new Schema<TUser>(
       }
     },
     username: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
+    password: { type: String, required: true, min: 3 },
     age: { type: Number, min: 1 },
-    hobbies: { type: [String], min: 2 },
+    hobbies: { type: [String], min: 2, max: 10 },
     address: { type: AddressSchema },
     isActive: { type: Boolean, default: true },
     orders: { type: OrdersSchema }
