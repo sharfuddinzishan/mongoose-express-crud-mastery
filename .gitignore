@@ -1,0 +1,6 @@
+# Ignore Node.js modules folder
+node_modules/
+dist/
+# Ignore npm lock file
+package-lock.json
+.env
