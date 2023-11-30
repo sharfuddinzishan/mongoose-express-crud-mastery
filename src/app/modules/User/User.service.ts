@@ -60,39 +60,8 @@ const getUserOrder = async (userId: number) => {
 
 const getTotalPrice = async (userId: number) => {
   if (await User.isUserExist(userId)) {
-    const result = await User.aggregate([
-      {
-        $match: {
-          userId
-        }
-      },
-      {
-        $project: {
-          orders: 1,
-          _id: 0
-        }
-      },
-      {
-        $unwind: '$orders'
-      },
-      {
-        $group: {
-          _id: 'totalPrice',
-          totalPrice: {
-            $sum: {
-              $multiply: ['$orders.price', '$orders.quantity']
-            }
-          }
-        }
-      },
-      {
-        $project: {
-          _id: 0,
-          totalPrice: 1
-        }
-      }
-    ])
-    return result.length ? result[0] : result
+    const result = await User.generatedTotal(userId)
+    return result
   } else {
     return false
   }

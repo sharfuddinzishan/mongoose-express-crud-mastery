@@ -70,6 +70,46 @@ UserSchema.statics.generatedId = async function (gid) {
   }
 }
 
+UserSchema.statics.generatedTotal = async function (userId) {
+  try {
+    const getResult = await User.aggregate([
+      {
+        $match: {
+          userId
+        }
+      },
+      {
+        $project: {
+          orders: 1,
+          _id: 0
+        }
+      },
+      {
+        $unwind: '$orders'
+      },
+      {
+        $group: {
+          _id: 'totalPrice',
+          totalPrice: {
+            $sum: {
+              $multiply: ['$orders.price', '$orders.quantity']
+            }
+          }
+        }
+      },
+      {
+        $project: {
+          _id: 0,
+          totalPrice: 1
+        }
+      }
+    ])
+    return getResult.length ? getResult[0] : getResult
+  } catch (error) {
+    return new Error('Can Not Generated ID')
+  }
+}
+
 // Static Method To Check User Exist or Not
 UserSchema.statics.isUserExist = async function (userId: number) {
   const isExist = await User.findOne({ userId })
