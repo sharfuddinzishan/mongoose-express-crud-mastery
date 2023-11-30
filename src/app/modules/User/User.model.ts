@@ -2,20 +2,32 @@ import { Schema, model } from 'mongoose'
 import { TAddress, TOrders, TUser, UserModel } from './User.interface'
 import validator from 'validator'
 
-const OrdersSchema = new Schema<TOrders>({
-  productName: { type: String, required: true },
-  price: { type: Number, min: 1, default: 1 },
-  quantity: { type: Number, min: 1, default: 1 }
-})
-const AddressSchema = new Schema<TAddress>({
-  street: { type: String, required: true },
-  city: { type: String, required: true },
-  country: { type: String, required: true }
-})
-const FullNameSchema = new Schema({
-  firstName: { type: String, required: true },
-  lastName: { type: String, required: true }
-})
+const OrdersSchema = new Schema<TOrders>(
+  {
+    productName: { type: String, required: true },
+    price: { type: Number, min: 1, default: 1 },
+    quantity: { type: Number, min: 1, default: 1 }
+  },
+  { _id: false }
+)
+
+const AddressSchema = new Schema<TAddress>(
+  {
+    street: { type: String, required: true },
+    city: { type: String, required: true },
+    country: { type: String, required: true }
+  },
+  { _id: false }
+)
+
+const FullNameSchema = new Schema(
+  {
+    firstName: { type: String, required: true },
+    lastName: { type: String, required: true }
+  },
+  { _id: false }
+)
+
 const UserSchema = new Schema<TUser, UserModel>(
   {
     userId: { type: Number, required: true },
@@ -43,7 +55,6 @@ const UserSchema = new Schema<TUser, UserModel>(
 )
 // Static Method To Generate userId if not provided in input
 UserSchema.statics.generatedId = async function (gid) {
-  console.log(gid)
   try {
     const lastId = await User.findOne().sort('-userId').exec()
     if (!gid && !lastId) {
