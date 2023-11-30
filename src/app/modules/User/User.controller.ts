@@ -67,7 +67,6 @@ const getUserByIdController = async (req: Request, res: Response) => {
   const getUserIdFromRequest = +req.params.userId
   try {
     const data = await userServices.getUser(getUserIdFromRequest)
-    console.log('Controller ', data)
     if (!data) {
       throw new Error('No Such User Found')
     }
@@ -88,8 +87,43 @@ const getUserByIdController = async (req: Request, res: Response) => {
   }
 }
 
+const updateUserByIdController = async (req: Request, res: Response) => {
+  const getUserDataFromRequest = req.body
+  const getUserIdFromRequest = +req.params.userId
+  try {
+    const result = UserZodValidator.safeParse(getUserDataFromRequest)
+    if (result.success) {
+      const datas = await userServices.updateUser(
+        getUserIdFromRequest,
+        getUserDataFromRequest
+      )
+      const { status, data } = datas
+      if (!status?.modifiedCount) {
+        throw new Error('No Changes Occured!')
+      }
+      res.send({
+        success: true,
+        message: 'Information updated successfully!',
+        data
+      })
+    } else {
+      throw result.error
+    }
+  } catch (error: unknown) {
+    res.send({
+      success: false,
+      message: 'Failed To Update Information',
+      error: {
+        code: 404,
+        description: `${error || 'User ID/Data Mismatch or Not Found'}`
+      }
+    })
+  }
+}
+
 export const userControllers = {
   createUserController,
   getUsersController,
-  getUserByIdController
+  getUserByIdController,
+  updateUserByIdController
 }

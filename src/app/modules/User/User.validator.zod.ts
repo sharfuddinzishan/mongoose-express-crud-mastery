@@ -74,7 +74,7 @@ export const UserZodValidator = z
     hobbies: z
       .string({ required_error: 'Hobbies Missing' })
       .array()
-      .min(2, 'Add Minimum Two Hobbies')
+      .nonempty({ message: 'Add Minimum One Hobbies' })
       .max(10, 'You Can Only Add Ten Hobbies')
       .optional(),
     email: z

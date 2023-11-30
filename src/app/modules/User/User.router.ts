@@ -6,5 +6,6 @@ const router = express.Router()
 router.post('/users', userControllers.createUserController)
 router.get('/users', userControllers.getUsersController)
 router.get('/users/:userId', userControllers.getUserByIdController)
+router.put('/users/:userId', userControllers.updateUserByIdController)
 
 export const userRouters = router

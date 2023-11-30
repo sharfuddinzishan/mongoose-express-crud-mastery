@@ -46,7 +46,7 @@ const UserSchema = new Schema<TUser, UserModel>(
     username: { type: String, required: true, unique: true },
     password: { type: String, required: true, min: 3 },
     age: { type: Number, min: 1, max: 200 },
-    hobbies: { type: [String], min: 2, max: 10 },
+    hobbies: { type: [String], min: 1, max: 10 },
     address: AddressSchema,
     isActive: { type: Boolean, default: true },
     orders: [OrdersSchema]
@@ -80,7 +80,7 @@ UserSchema.statics.isUserExist = async function (userId: number) {
   - Post Middleware For After User Creation
   - Return data as Response by skipping some properties
 */
-UserSchema.post('save', function async(docs, next) {
+UserSchema.post('save', async function (docs, next) {
   docs.toJSON = function () {
     // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
     const { password, orders, ...userWithoutOrders } = this.toObject()

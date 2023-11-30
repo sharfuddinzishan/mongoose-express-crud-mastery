@@ -24,8 +24,22 @@ const getUser = async (userId: number) => {
   }
 }
 
+const updateUser = async (userId: number, bodyParseData: TUser) => {
+  if (await User.isUserExist(userId)) {
+    const status = await User.updateOne({ userId: userId }, bodyParseData)
+    // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
+    const { password, ...data } = bodyParseData
+    return { status, data }
+  } else {
+    return {
+      error: 'No Such User Found'
+    }
+  }
+}
+
 export const userServices = {
   createUser,
   getUsers,
-  getUser
+  getUser,
+  updateUser
 }
