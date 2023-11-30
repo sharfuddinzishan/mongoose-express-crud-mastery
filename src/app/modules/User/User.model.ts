@@ -18,7 +18,7 @@ const FullNameSchema = new Schema({
 })
 const UserSchema = new Schema<TUser, UserModel>(
   {
-    userId: { type: Number, required: true, unique: true },
+    userId: { type: Number, required: true },
     fullName: { type: FullNameSchema, required: true },
     email: {
       type: String,
@@ -33,16 +33,17 @@ const UserSchema = new Schema<TUser, UserModel>(
     },
     username: { type: String, required: true, unique: true },
     password: { type: String, required: true, min: 3 },
-    age: { type: Number, min: 1 },
+    age: { type: Number, min: 1, max: 200 },
     hobbies: { type: [String], min: 2, max: 10 },
     address: { type: AddressSchema },
     isActive: { type: Boolean, default: true },
-    orders: { type: OrdersSchema }
+    orders: [OrdersSchema]
   },
   { versionKey: false }
 )
 // Static Method To Generate userId if not provided in input
 UserSchema.statics.generatedId = async function (gid) {
+  console.log(gid)
   try {
     const lastId = await User.findOne().sort('-userId').exec()
     if (!gid && !lastId) {

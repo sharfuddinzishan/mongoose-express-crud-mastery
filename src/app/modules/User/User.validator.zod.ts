@@ -57,29 +57,31 @@ export const UserZodValidator = z
         required_error: 'User ID Missing',
         invalid_type_error: 'Expected User Id, But Received Only Number'
       })
-      .positive(),
-    fullName: FullNameValidator.required(),
-    email: z
-      .string({ invalid_type_error: 'Email Should Not Only Digits!' })
-      .email({ message: 'Email Invalid' })
-      .min(6, 'Too Much Short Email'),
+      .positive()
+      .optional(),
+    fullName: FullNameValidator.optional(),
     username: z
       .string({ invalid_type_error: 'User Name Should Not Be Only Digits!' })
       .min(2, 'User Name Missing or Too Much Short'),
     password: z
-      .string({ invalid_type_error: 'Check Password Type String or Not' })
-      .min(3, 'Password Must Be More Than Four Digits'),
+      .string({ invalid_type_error: 'Password Must Have Atleast One Letter' })
+      .min(3, 'Password Must Be More Than Three Digits'),
     age: z
       .number({ invalid_type_error: 'Age Should Be Non-Zero Positive!' })
       .positive()
+      .max(200, 'Age Should Be Below 200')
       .optional(),
     hobbies: z
-      .string()
+      .string({ required_error: 'Hobbies Missing' })
       .array()
       .min(2, 'Add Minimum Two Hobbies')
       .max(10, 'You Can Only Add Ten Hobbies'),
-    address: AddressValidator.optional(),
+    email: z
+      .string({ invalid_type_error: 'Email Should Not Only Digits!' })
+      .email({ message: 'Email Invalid' })
+      .min(6, 'Too Much Short Email'),
     isActive: z.boolean().default(true),
+    address: AddressValidator.optional(),
     orders: z.array(OrdersValidator)
   })
   .strict()
