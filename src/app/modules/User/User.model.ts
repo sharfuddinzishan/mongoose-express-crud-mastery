@@ -73,6 +73,7 @@ UserSchema.statics.generatedId = async function (gid) {
 // Static Method To Check User Exist or Not
 UserSchema.statics.isUserExist = async function (userId: number) {
   const isExist = await User.findOne({ userId })
+  console.log(isExist)
   return isExist
 }
 

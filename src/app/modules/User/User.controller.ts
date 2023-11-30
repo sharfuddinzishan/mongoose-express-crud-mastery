@@ -97,9 +97,9 @@ const updateUserByIdController = async (req: Request, res: Response) => {
         getUserIdFromRequest,
         getUserDataFromRequest
       )
-      const { status, data } = datas
+      const { status, data, error } = datas
       if (!status?.modifiedCount) {
-        throw new Error('No Changes Occured!')
+        throw new Error(error || 'No Changes Occured!')
       }
       res.send({
         success: true,
@@ -121,9 +121,34 @@ const updateUserByIdController = async (req: Request, res: Response) => {
   }
 }
 
+const deleteUserByIdController = async (req: Request, res: Response) => {
+  const getUserIdFromRequest = +req.params.userId
+  try {
+    const data = await userServices.deleteUser(getUserIdFromRequest)
+    if (!data) {
+      throw new Error('No Such User Found')
+    }
+    res.send({
+      success: true,
+      message: 'User deleted successfully!',
+      data: null
+    })
+  } catch (error: unknown) {
+    res.send({
+      success: false,
+      message: 'User Not Deleted',
+      error: {
+        code: 404,
+        description: `${error || 'User ID Not Found'}`
+      }
+    })
+  }
+}
+
 export const userControllers = {
   createUserController,
   getUsersController,
   getUserByIdController,
-  updateUserByIdController
+  updateUserByIdController,
+  deleteUserByIdController
 }

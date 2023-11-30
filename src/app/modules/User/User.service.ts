@@ -29,7 +29,7 @@ const updateUser = async (userId: number, bodyParseData: TUser) => {
     const status = await User.updateOne({ userId: userId }, bodyParseData)
     // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
     const { password, ...data } = bodyParseData
-    return { status, data }
+    return { status, data, error: null }
   } else {
     return {
       error: 'No Such User Found'
@@ -37,9 +37,19 @@ const updateUser = async (userId: number, bodyParseData: TUser) => {
   }
 }
 
+const deleteUser = async (userId: number) => {
+  if (await User.isUserExist(userId)) {
+    const result = await User.deleteOne({ userId })
+    return result
+  } else {
+    return false
+  }
+}
+
 export const userServices = {
   createUser,
   getUsers,
   getUser,
-  updateUser
+  updateUser,
+  deleteUser
 }
