@@ -21,7 +21,7 @@ const logger = (req: Request, res: Response, next: NextFunction) => {
 }
 
 // Routers
-app.use('/api/v1', userRouters)
+app.use('/api', userRouters)
 
 app.get('/', logger, (req: Request, res: Response) => {
   res.status(400).json({

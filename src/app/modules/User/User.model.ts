@@ -30,7 +30,7 @@ const FullNameSchema = new Schema(
 
 const UserSchema = new Schema<TUser, UserModel>(
   {
-    userId: { type: Number, required: true },
+    userId: { type: Number, required: true, unique: true },
     fullName: { type: FullNameSchema, required: true },
     email: {
       type: String,
@@ -47,7 +47,7 @@ const UserSchema = new Schema<TUser, UserModel>(
     password: { type: String, required: true, min: 3 },
     age: { type: Number, min: 1, max: 200 },
     hobbies: { type: [String], min: 2, max: 10 },
-    address: { type: AddressSchema },
+    address: AddressSchema,
     isActive: { type: Boolean, default: true },
     orders: [OrdersSchema]
   },
@@ -68,6 +68,19 @@ UserSchema.statics.generatedId = async function (gid) {
     return new Error('Can Not Generated ID')
   }
 }
+
+/*
+  - Post Middleware For After User Creation
+  - Return data as Response by skipping some properties
+*/
+UserSchema.post('save', function async(docs, next) {
+  docs.toJSON = function () {
+    // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
+    const { password, orders, ...userWithoutOrders } = this.toObject()
+    return userWithoutOrders
+  }
+  next()
+})
 
 // Model User
 export const User = model<TUser, UserModel>('User', UserSchema)

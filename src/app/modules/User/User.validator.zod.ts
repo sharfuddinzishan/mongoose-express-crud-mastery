@@ -59,7 +59,7 @@ export const UserZodValidator = z
       })
       .positive()
       .optional(),
-    fullName: FullNameValidator.optional(),
+    fullName: FullNameValidator,
     username: z
       .string({ invalid_type_error: 'User Name Should Not Be Only Digits!' })
       .min(2, 'User Name Missing or Too Much Short'),
@@ -75,13 +75,14 @@ export const UserZodValidator = z
       .string({ required_error: 'Hobbies Missing' })
       .array()
       .min(2, 'Add Minimum Two Hobbies')
-      .max(10, 'You Can Only Add Ten Hobbies'),
+      .max(10, 'You Can Only Add Ten Hobbies')
+      .optional(),
     email: z
       .string({ invalid_type_error: 'Email Should Not Only Digits!' })
       .email({ message: 'Email Invalid' })
       .min(6, 'Too Much Short Email'),
     isActive: z.boolean().default(true),
     address: AddressValidator.optional(),
-    orders: z.array(OrdersValidator)
+    orders: z.array(OrdersValidator).optional()
   })
   .strict()
