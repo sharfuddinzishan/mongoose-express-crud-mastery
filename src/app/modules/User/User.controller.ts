@@ -169,11 +169,36 @@ const getOrdersByIdController = async (req: Request, res: Response) => {
   }
 }
 
+const getTotalPriceController = async (req: Request, res: Response) => {
+  const getUserIdFromRequest = +req.params.userId
+  try {
+    const data = await userServices.getTotalPrice(getUserIdFromRequest)
+    if (!data) {
+      throw new Error('No Such User Found')
+    }
+    res.send({
+      success: true,
+      message: 'Total price calculated successfully!',
+      data
+    })
+  } catch (error: unknown) {
+    res.send({
+      success: false,
+      message: 'No Result',
+      error: {
+        code: 404,
+        description: `${error || 'User ID Mismatch or Not Found'}`
+      }
+    })
+  }
+}
+
 export const userControllers = {
   createUserController,
   getUsersController,
   getUserByIdController,
   updateUserByIdController,
   deleteUserByIdController,
-  getOrdersByIdController
+  getOrdersByIdController,
+  getTotalPriceController
 }
