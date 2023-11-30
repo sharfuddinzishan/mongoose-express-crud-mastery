@@ -3,34 +3,12 @@ import { UserZodValidator } from './User.validator.zod'
 import { userServices } from './User.service'
 import { z } from 'zod'
 
-const getUsersController = async (req: Request, res: Response) => {
-  try {
-    const data = await userServices.getUsers()
-    if (!data.length) {
-      throw new Error('No Users Data Found')
-    }
-    res.send({
-      success: true,
-      message: 'Users fetched successfully!',
-      data
-    })
-  } catch (error: unknown) {
-    res.send({
-      success: false,
-      message: 'Users Not Fetched',
-      error: {
-        code: 404,
-        description: `${error}`
-      }
-    })
-  }
-}
 const createUserController = async (req: Request, res: Response) => {
   const getUserDataFromRequest = req.body
   try {
     const result = UserZodValidator.safeParse(getUserDataFromRequest)
     if (result.success) {
-      const data = await userServices.creatUser(getUserDataFromRequest)
+      const data = await userServices.createUser(getUserDataFromRequest)
       res.send({
         success: true,
         message: 'User created successfully!',
@@ -62,7 +40,56 @@ const createUserController = async (req: Request, res: Response) => {
   }
 }
 
+const getUsersController = async (req: Request, res: Response) => {
+  try {
+    const data = await userServices.getUsers()
+    if (!data.length) {
+      throw new Error('No Users Data Found')
+    }
+    res.send({
+      success: true,
+      message: 'Users fetched successfully!',
+      data
+    })
+  } catch (error: unknown) {
+    res.send({
+      success: false,
+      message: 'Users Not Fetched',
+      error: {
+        code: 404,
+        description: `${error}`
+      }
+    })
+  }
+}
+
+const getUserByIdController = async (req: Request, res: Response) => {
+  const getUserIdFromRequest = +req.params.userId
+  try {
+    const data = await userServices.getUser(getUserIdFromRequest)
+    console.log('Controller ', data)
+    if (!data) {
+      throw new Error('No Such User Found')
+    }
+    res.send({
+      success: true,
+      message: 'User fetched successfully!',
+      data
+    })
+  } catch (error: unknown) {
+    res.send({
+      success: false,
+      message: 'User Not Fetched',
+      error: {
+        code: 404,
+        description: `${error || 'User ID Mismatch or Not Found'}`
+      }
+    })
+  }
+}
+
 export const userControllers = {
   createUserController,
-  getUsersController
+  getUsersController,
+  getUserByIdController
 }

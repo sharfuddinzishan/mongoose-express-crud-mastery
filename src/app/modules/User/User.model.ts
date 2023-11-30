@@ -53,6 +53,7 @@ const UserSchema = new Schema<TUser, UserModel>(
   },
   { versionKey: false }
 )
+
 // Static Method To Generate userId if not provided in input
 UserSchema.statics.generatedId = async function (gid) {
   try {
@@ -67,6 +68,12 @@ UserSchema.statics.generatedId = async function (gid) {
   } catch (error) {
     return new Error('Can Not Generated ID')
   }
+}
+
+// Static Method To Check User Exist or Not
+UserSchema.statics.isUserExist = async function (userId: number) {
+  const isExist = await User.findOne({ userId })
+  return isExist
 }
 
 /*

@@ -1,11 +1,12 @@
 import { TUser } from './User.interface'
 import { User } from './User.model'
 
-const creatUser = async (getData: TUser) => {
+const createUser = async (getData: TUser) => {
   const userId = await User.generatedId(getData.userId || 0)
   const result = await User.create({ ...getData, userId })
   return result
 }
+
 const getUsers = async () => {
   const result = await User.find(
     {},
@@ -14,7 +15,17 @@ const getUsers = async () => {
   return result
 }
 
+const getUser = async (userId: number) => {
+  if (await User.isUserExist(userId)) {
+    const result = await User.findOne({ userId }, { _id: 0, password: 0 })
+    return result
+  } else {
+    return false
+  }
+}
+
 export const userServices = {
-  creatUser,
-  getUsers
+  createUser,
+  getUsers,
+  getUser
 }
