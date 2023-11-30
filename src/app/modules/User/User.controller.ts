@@ -145,10 +145,35 @@ const deleteUserByIdController = async (req: Request, res: Response) => {
   }
 }
 
+const getOrdersByIdController = async (req: Request, res: Response) => {
+  const getUserIdFromRequest = +req.params.userId
+  try {
+    const data = await userServices.getUserOrder(getUserIdFromRequest)
+    if (!data) {
+      throw new Error('No Such User Found')
+    }
+    res.send({
+      success: true,
+      message: 'Order fetched successfully!',
+      data
+    })
+  } catch (error: unknown) {
+    res.send({
+      success: false,
+      message: 'Orders Not Fetched',
+      error: {
+        code: 404,
+        description: `${error || 'User ID Mismatch or Not Found'}`
+      }
+    })
+  }
+}
+
 export const userControllers = {
   createUserController,
   getUsersController,
   getUserByIdController,
   updateUserByIdController,
-  deleteUserByIdController
+  deleteUserByIdController,
+  getOrdersByIdController
 }

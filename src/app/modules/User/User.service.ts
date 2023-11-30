@@ -17,7 +17,10 @@ const getUsers = async () => {
 
 const getUser = async (userId: number) => {
   if (await User.isUserExist(userId)) {
-    const result = await User.findOne({ userId }, { _id: 0, password: 0 })
+    const result = await User.findOne(
+      { userId },
+      { _id: 0, orders: 0, password: 0 }
+    )
     return result
   } else {
     return false
@@ -46,10 +49,20 @@ const deleteUser = async (userId: number) => {
   }
 }
 
+const getUserOrder = async (userId: number) => {
+  if (await User.isUserExist(userId)) {
+    const result = await User.findOne({ userId }, { _id: 0, orders: 1 })
+    return result
+  } else {
+    return false
+  }
+}
+
 export const userServices = {
   createUser,
   getUsers,
   getUser,
   updateUser,
-  deleteUser
+  deleteUser,
+  getUserOrder
 }
