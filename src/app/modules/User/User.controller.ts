@@ -1,5 +1,5 @@
 import { Request, Response } from 'express'
-import { UserZodValidator } from './User.validator.zod'
+import { OrdersValidator, UserZodValidator } from './User.validator.zod'
 import { userServices } from './User.service'
 import { z } from 'zod'
 
@@ -193,6 +193,41 @@ const getTotalPriceController = async (req: Request, res: Response) => {
   }
 }
 
+const addOrderController = async (req: Request, res: Response) => {
+  const getUserDataFromRequest = req.body
+  const getUserIdFromRequest = +req.params.userId
+  console.log('Co troller req', getUserDataFromRequest, getUserIdFromRequest)
+  try {
+    const parseOrder = OrdersValidator.safeParse(getUserDataFromRequest)
+    console.log('parse order', parseOrder)
+    if (parseOrder.success) {
+      const result = await userServices.addOrder(
+        getUserIdFromRequest,
+        getUserDataFromRequest
+      )
+      if (!result) {
+        throw new Error('No Order Placed!')
+      }
+      res.send({
+        success: true,
+        message: 'Order created successfully!"',
+        data: null
+      })
+    } else {
+      throw parseOrder.error
+    }
+  } catch (error: unknown) {
+    res.send({
+      success: false,
+      message: 'Failed To Update Order',
+      error: {
+        code: 404,
+        description: `${error || 'User ID/Data Mismatch or Not Found'}`
+      }
+    })
+  }
+}
+
 export const userControllers = {
   createUserController,
   getUsersController,
@@ -200,5 +235,6 @@ export const userControllers = {
   updateUserByIdController,
   deleteUserByIdController,
   getOrdersByIdController,
-  getTotalPriceController
+  getTotalPriceController,
+  addOrderController
 }

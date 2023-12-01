@@ -67,6 +67,22 @@ const getTotalPrice = async (userId: number) => {
   }
 }
 
+const addOrder = async (userId: number, bodyParseData: TUser) => {
+  if (await User.isUserExist(userId)) {
+    const result = await User.updateOne(
+      { userId },
+      {
+        $push: { orders: bodyParseData }
+      }
+    )
+    return result
+  } else {
+    return {
+      error: 'No Such User Found'
+    }
+  }
+}
+
 export const userServices = {
   createUser,
   getUsers,
@@ -74,5 +90,6 @@ export const userServices = {
   updateUser,
   deleteUser,
   getUserOrder,
-  getTotalPrice
+  getTotalPrice,
+  addOrder
 }

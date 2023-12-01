@@ -13,5 +13,6 @@ router.get(
   '/users/:userId/orders/total-price',
   userControllers.getTotalPriceController
 )
+router.put('/users/:userId/orders', userControllers.addOrderController)
 
 export const userRouters = router

@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-const OrdersValidator = z.object({
+export const OrdersValidator = z.object({
   productName: z
     .string({
       invalid_type_error: 'Expected Product Name, Received Only Number'
