@@ -5,12 +5,14 @@ import { dbconnect } from './utill/dbconnect'
 
 const app: Application = express()
 
-// Parser
+// This
 app.use(express.json())
 app.use(express.text())
 
-// Middleware
-app.use(cors())
+let a = 10
+if (a % 2 == 0)
+  // Middleware
+  app.use(cors())
 
 // dbconnect
 dbconnect()
