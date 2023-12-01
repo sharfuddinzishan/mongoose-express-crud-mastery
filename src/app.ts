@@ -9,9 +9,7 @@ const app: Application = express()
 app.use(express.json())
 app.use(express.text())
 
-let a = 10
-if (a % 2 == 0)
-  // Middleware
+// Middleware
   app.use(cors())
 
 // dbconnect
