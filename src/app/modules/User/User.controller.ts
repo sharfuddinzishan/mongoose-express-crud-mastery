@@ -2,6 +2,7 @@ import { Request, Response } from 'express'
 import { OrdersValidator, UserZodValidator } from './User.validator.zod'
 import { userServices } from './User.service'
 import { z } from 'zod'
+import { resMsg } from '../../../utill/errorHandling'
 
 // Creating a new user.
 const createUserController = async (req: Request, res: Response) => {
@@ -22,23 +23,10 @@ const createUserController = async (req: Request, res: Response) => {
     }
   } catch (error: unknown) {
     if (error instanceof z.ZodError) {
-      res.send({
-        success: false,
-        message: 'User Not Created',
-        error: {
-          code: 404,
-          description: `[Data Validation Failed] ${error.issues}`
-        }
-      })
+      resMsg(res, 'User Not Created', error.issues, 'Data Validation Failed')
     } else {
-      res.send({
-        success: false,
-        message: 'User Not Created',
-        error: {
-          code: 404,
-          description: `${error || 'Required Data Mismatch or Server Problem'}`
-        }
-      })
+      // errorMsg(response,message,error,description)
+      resMsg(res, 'User Not Created', error, 'Required Data Mismatch')
     }
   }
 }
@@ -56,14 +44,7 @@ const getUsersController = async (req: Request, res: Response) => {
       data
     })
   } catch (error: unknown) {
-    res.send({
-      success: false,
-      message: 'Users Not Fetched',
-      error: {
-        code: 404,
-        description: `${error}`
-      }
-    })
+    resMsg(res, 'User Not Fetched', error)
   }
 }
 
@@ -81,14 +62,8 @@ const getUserByIdController = async (req: Request, res: Response) => {
       data
     })
   } catch (error: unknown) {
-    res.send({
-      success: false,
-      message: 'User Not Fetched',
-      error: {
-        code: 404,
-        description: `${error || 'User ID Mismatch or Not Found'}`
-      }
-    })
+    // errorMsg(response,message,error,description)
+    resMsg(res, 'User Not Fetched', error, 'UserId Mismatch/Missing')
   }
 }
 
@@ -117,14 +92,7 @@ const updateUserByIdController = async (req: Request, res: Response) => {
       throw result.error
     }
   } catch (error: unknown) {
-    res.send({
-      success: false,
-      message: 'Failed To Update Information',
-      error: {
-        code: 404,
-        description: `${error || 'User ID/Data Mismatch or Not Found'}`
-      }
-    })
+    resMsg(res, 'Failed To Update Information', error, 'UserId Mismatch')
   }
 }
 
@@ -142,14 +110,7 @@ const deleteUserByIdController = async (req: Request, res: Response) => {
       data: null
     })
   } catch (error: unknown) {
-    res.send({
-      success: false,
-      message: 'User Not Deleted',
-      error: {
-        code: 404,
-        description: `${error || 'User ID Not Found'}`
-      }
-    })
+    resMsg(res, 'User Deleted Failed!', error, 'UserId Missing')
   }
 }
 
@@ -167,14 +128,7 @@ const getOrdersByIdController = async (req: Request, res: Response) => {
       data
     })
   } catch (error: unknown) {
-    res.send({
-      success: false,
-      message: 'Orders Not Fetched',
-      error: {
-        code: 404,
-        description: `${error || 'User ID Mismatch or Not Found'}`
-      }
-    })
+    resMsg(res, 'Orders Fatching Failed!', error, 'UserId Missing')
   }
 }
 
@@ -192,14 +146,7 @@ const getTotalPriceController = async (req: Request, res: Response) => {
       data
     })
   } catch (error: unknown) {
-    res.send({
-      success: false,
-      message: 'No Result',
-      error: {
-        code: 404,
-        description: `${error || 'User ID Mismatch or Not Found'}`
-      }
-    })
+    resMsg(res, 'Failed To Calculate Total!', error, 'UserId Missing')
   }
 }
 
@@ -227,14 +174,7 @@ const addOrderController = async (req: Request, res: Response) => {
       throw parseOrder.error
     }
   } catch (error: unknown) {
-    res.send({
-      success: false,
-      message: 'Failed To Add Order',
-      error: {
-        code: 404,
-        description: `${error || 'User ID/Data Mismatch or Not Found'}`
-      }
-    })
+    resMsg(res, 'User Added Failed!', error, 'UserId Missing')
   }
 }
 
