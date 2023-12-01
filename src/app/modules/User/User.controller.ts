@@ -3,9 +3,12 @@ import { OrdersValidator, UserZodValidator } from './User.validator.zod'
 import { userServices } from './User.service'
 import { z } from 'zod'
 
+// Creating a new user.
 const createUserController = async (req: Request, res: Response) => {
+  // Extract user data from the request body.
   const getUserDataFromRequest = req.body
   try {
+    // Validate user data using the Zod schema.
     const result = UserZodValidator.safeParse(getUserDataFromRequest)
     if (result.success) {
       const data = await userServices.createUser(getUserDataFromRequest)
@@ -40,6 +43,7 @@ const createUserController = async (req: Request, res: Response) => {
   }
 }
 
+// Fetching all users.
 const getUsersController = async (req: Request, res: Response) => {
   try {
     const data = await userServices.getUsers()
@@ -63,6 +67,7 @@ const getUsersController = async (req: Request, res: Response) => {
   }
 }
 
+// Fetching a user by user ID.
 const getUserByIdController = async (req: Request, res: Response) => {
   const getUserIdFromRequest = +req.params.userId
   try {
@@ -87,10 +92,12 @@ const getUserByIdController = async (req: Request, res: Response) => {
   }
 }
 
+// Updating a user by user ID.
 const updateUserByIdController = async (req: Request, res: Response) => {
   const getUserDataFromRequest = req.body
   const getUserIdFromRequest = +req.params.userId
   try {
+    // Validate user data using the Zod schema.
     const result = UserZodValidator.safeParse(getUserDataFromRequest)
     if (result.success) {
       const datas = await userServices.updateUser(
@@ -99,7 +106,7 @@ const updateUserByIdController = async (req: Request, res: Response) => {
       )
       const { status, data, error } = datas
       if (!status?.modifiedCount) {
-        throw new Error(error || 'No Changes Occured!')
+        throw new Error(error || 'No Changes Occurred!')
       }
       res.send({
         success: true,
@@ -121,6 +128,7 @@ const updateUserByIdController = async (req: Request, res: Response) => {
   }
 }
 
+// Deleting a user by user ID.
 const deleteUserByIdController = async (req: Request, res: Response) => {
   const getUserIdFromRequest = +req.params.userId
   try {
@@ -145,6 +153,7 @@ const deleteUserByIdController = async (req: Request, res: Response) => {
   }
 }
 
+// Fetching a orders by userId.
 const getOrdersByIdController = async (req: Request, res: Response) => {
   const getUserIdFromRequest = +req.params.userId
   try {
@@ -169,6 +178,7 @@ const getOrdersByIdController = async (req: Request, res: Response) => {
   }
 }
 
+// Calculating the sum of price from orders of a user.
 const getTotalPriceController = async (req: Request, res: Response) => {
   const getUserIdFromRequest = +req.params.userId
   try {
@@ -193,13 +203,13 @@ const getTotalPriceController = async (req: Request, res: Response) => {
   }
 }
 
+// Add new order.
 const addOrderController = async (req: Request, res: Response) => {
   const getUserDataFromRequest = req.body
   const getUserIdFromRequest = +req.params.userId
-  console.log('Co troller req', getUserDataFromRequest, getUserIdFromRequest)
   try {
+    // Validate order data using the Zod Order schema.
     const parseOrder = OrdersValidator.safeParse(getUserDataFromRequest)
-    console.log('parse order', parseOrder)
     if (parseOrder.success) {
       const result = await userServices.addOrder(
         getUserIdFromRequest,
@@ -210,7 +220,7 @@ const addOrderController = async (req: Request, res: Response) => {
       }
       res.send({
         success: true,
-        message: 'Order created successfully!"',
+        message: 'Order created successfully!',
         data: null
       })
     } else {
@@ -219,7 +229,7 @@ const addOrderController = async (req: Request, res: Response) => {
   } catch (error: unknown) {
     res.send({
       success: false,
-      message: 'Failed To Update Order',
+      message: 'Failed To Add Order',
       error: {
         code: 404,
         description: `${error || 'User ID/Data Mismatch or Not Found'}`

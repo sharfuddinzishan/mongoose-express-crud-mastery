@@ -54,10 +54,24 @@ const UserSchema = new Schema<TUser, UserModel>(
   { versionKey: false }
 )
 
-// Static Method To Generate userId if not provided in input
+// Static Method Used To Generate userId if not provided in input
 UserSchema.statics.generatedId = async function (gid) {
   try {
     const lastId = await User.findOne().sort('-userId').exec()
+    /*  
+    # !gid && !lastId
+      If user not provided userId during update or creation
+      and database have no user, then assigned 1 to that document
+      which is goind to be created or updated.
+
+    # !gid && lastId
+      If userId not provided but database have users,
+      Then sort database table/collection,
+      After sorting, add 1 with userId of the last user in collection.
+
+    # else block
+      If userId provided, then cast that id for further safety.
+    */
     if (!gid && !lastId) {
       return 1
     } else if (!gid && lastId) {
@@ -70,6 +84,7 @@ UserSchema.statics.generatedId = async function (gid) {
   }
 }
 
+// Calculate Total Price of Orders
 UserSchema.statics.generatedTotal = async function (userId) {
   try {
     const getResult = await User.aggregate([
@@ -104,6 +119,10 @@ UserSchema.statics.generatedTotal = async function (userId) {
         }
       }
     ])
+    // getResult returns an array if order found,    [ { totalPrice: 91.94 } ]
+    // so first index element selected                 { totalPrice: 91.94 }
+    // if orders is empty then return [],
+    // means user have not placed any order soundefined
     return getResult.length ? getResult[0] : getResult
   } catch (error) {
     return new Error('Can Not Generated ID')
@@ -113,7 +132,6 @@ UserSchema.statics.generatedTotal = async function (userId) {
 // Static Method To Check User Exist or Not
 UserSchema.statics.isUserExist = async function (userId: number) {
   const isExist = await User.findOne({ userId })
-  console.log(isExist)
   return isExist
 }
 

@@ -1,18 +1,23 @@
 import { z } from 'zod'
 
-export const OrdersValidator = z.object({
-  productName: z
-    .string({
-      invalid_type_error: 'Expected Product Name, Received Only Number'
-    })
-    .min(2, 'Product Name Missing or Too Short'),
-  price: z
-    .number({ invalid_type_error: 'Price Should Be Number' })
-    .positive({ message: 'Price Should Not Zero Or Less' }),
-  quantity: z
-    .number({ invalid_type_error: 'Quantity Should Be Number' })
-    .positive({ message: 'Quantity Should Not Zero Or Less' })
-})
+export const OrdersValidator = z
+  .object({
+    productName: z
+      .string({
+        invalid_type_error: 'Expected Product Name, Received Only Number'
+      })
+      .min(2, 'Product Name Missing or Too Short'),
+    price: z
+      .number({ invalid_type_error: 'Price Should Be Number' })
+      .positive({ message: 'Price Should Not Zero Or Less' }),
+    quantity: z
+      .number({ invalid_type_error: 'Quantity Should Be Number' })
+      .positive({ message: 'Quantity Should Not Zero Or Less' })
+  })
+  .describe(
+    `ProductName should be a string with minimum length of 2 characters.
+     Price should be a positive number and not zero or less.`
+  )
 
 const AddressValidator = z
   .object({
@@ -33,6 +38,9 @@ const AddressValidator = z
       )
     },
     { message: 'City/Street/Country Wrong Input' }
+  )
+  .describe(
+    'If an address is provided: street, city, country should be 2 character length strings.'
   )
 
 const FullNameValidator = z.object({
@@ -83,6 +91,9 @@ export const UserZodValidator = z
       .min(6, 'Too Much Short Email'),
     isActive: z.boolean().default(true),
     address: AddressValidator.optional(),
-    orders: z.array(OrdersValidator).optional()
+    orders: z
+      .array(OrdersValidator)
+      .optional()
+      .describe('Optional but, if provided, should be an array')
   })
   .strict()

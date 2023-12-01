@@ -3,16 +3,17 @@ import cors from 'cors'
 import { userRouters } from './app/modules/User/User.router'
 import { dbconnect } from './utill/dbconnect'
 
+// Express instance
 const app: Application = express()
 
-// This
+// Middleware to handle JSON and text payloads
 app.use(express.json())
 app.use(express.text())
 
-// Middleware
-  app.use(cors())
+// CORS middleware for resource sharing
+app.use(cors())
 
-// dbconnect
+// Establishing a connection to the database
 dbconnect()
 
 const logger = (req: Request, res: Response, next: NextFunction) => {
@@ -20,7 +21,7 @@ const logger = (req: Request, res: Response, next: NextFunction) => {
   next()
 }
 
-// Routers
+// Routes for User module
 app.use('/api', userRouters)
 
 app.get('/', logger, (req: Request, res: Response) => {
@@ -30,6 +31,7 @@ app.get('/', logger, (req: Request, res: Response) => {
   })
 })
 
+// Handling invalid URLs
 app.all('**', (req: Request, res: Response) => {
   res.status(200).json({
     success: false,
@@ -37,4 +39,5 @@ app.all('**', (req: Request, res: Response) => {
   })
 })
 
+// Exporting the configured Express application
 export default app
