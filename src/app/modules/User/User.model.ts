@@ -142,7 +142,7 @@ UserSchema.statics.isUserExist = async function (userId: number) {
 UserSchema.post('save', async function (docs, next) {
   docs.toJSON = function () {
     // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
-    const { password, orders, ...userWithoutOrders } = this.toObject()
+    const { password, orders, _id, ...userWithoutOrders } = this.toObject()
     return userWithoutOrders
   }
   next()

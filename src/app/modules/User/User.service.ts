@@ -1,23 +1,25 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { TUser } from './User.interface'
 import { User } from './User.model'
 
 // Create a new user in the database.
 const createUser = async (getData: TUser) => {
   /*
-  If no userId is provided, the function will return:
-    - 1 if the database has no users.
-    - if database have other users then 
-        - Add 1 to the last sorted (ascending) userId from the Users collection.
-
-  If a userId is provided, the function will return that same userId.
-
-  During user creation, schema model checks whether the userId is unique or not.
+  ##  If no userId is provided:
+        * If the database has no users, return 1.
+        * Otherwise, add 1 to the last sorted userId from the Users collection.
+  ##  If a userId is provided, return that same userId.
+  ##  During user creation, check if the provided userId is unique using a schema model.
 */
+  try {
+    const userId = await User.generatedId(getData.userId || 0)
 
-  const userId = await User.generatedId(getData.userId || 0)
-  // Create a new user with the modified data.
-  const result = await User.create({ ...getData, userId })
-  return result
+    const result = await User.create({ ...getData, userId })
+    return result
+  } catch (error: any) {
+    error.statusCode = 409
+    throw error
+  }
 }
 
 // Retrieve a list of users with limited properties.
@@ -38,7 +40,9 @@ const getUser = async (userId: number) => {
     )
     return result
   } else {
-    return false
+    const error: any = new Error('No User Data Found')
+    error.statusCode = 409
+    throw error
   }
 }
 
@@ -53,9 +57,9 @@ const updateUser = async (userId: number, bodyParseData: TUser) => {
     const { password, ...data } = bodyParseData // Omit the password field.
     return { status, data, error: null }
   } else {
-    return {
-      error: 'No Such User Found'
-    }
+    const error: any = new Error('No User Data Found')
+    error.statusCode = 409
+    throw error
   }
 }
 

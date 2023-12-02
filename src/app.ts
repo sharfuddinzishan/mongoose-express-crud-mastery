@@ -33,9 +33,9 @@ app.get('/', logger, (req: Request, res: Response) => {
 
 // Handling invalid URLs
 app.all('**', (req: Request, res: Response) => {
-  res.status(200).json({
+  res.status(404).json({
     success: false,
-    message: 'Invalid URL'
+    message: `The requested resource ${req.url} was not found`
   })
 })
 

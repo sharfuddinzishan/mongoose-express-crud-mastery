@@ -1,19 +1,18 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Request, Response } from 'express'
 import { OrdersValidator, UserZodValidator } from './User.validator.zod'
 import { userServices } from './User.service'
-import { z } from 'zod'
 import { resMsg } from '../../../utill/errorHandling'
 
 // Creating a new user.
 const createUserController = async (req: Request, res: Response) => {
-  // Extract user data from the request body.
   const getUserDataFromRequest = req.body
   try {
     // Validate user data using the Zod schema.
-    const result = UserZodValidator.safeParse(getUserDataFromRequest)
+    const result = await UserZodValidator.safeParse(getUserDataFromRequest)
     if (result.success) {
       const data = await userServices.createUser(getUserDataFromRequest)
-      res.send({
+      res.status(201).json({
         success: true,
         message: 'User created successfully!',
         data
@@ -21,13 +20,9 @@ const createUserController = async (req: Request, res: Response) => {
     } else {
       throw result.error
     }
-  } catch (error: unknown) {
-    if (error instanceof z.ZodError) {
-      resMsg(res, 'User Not Created', error.issues, 'Data Validation Failed')
-    } else {
-      // errorMsg(response,message,error,description)
-      resMsg(res, 'User Not Created', error, 'Required Data Mismatch')
-    }
+  } catch (error) {
+    // errorMsg(response,message,error,description)
+    resMsg(res, 'User Not Created', error, 'Wrong Information Provided')
   }
 }
 
@@ -38,13 +33,13 @@ const getUsersController = async (req: Request, res: Response) => {
     if (!data.length) {
       throw new Error('No Users Data Found')
     }
-    res.send({
+    res.status(201).json({
       success: true,
       message: 'Users fetched successfully!',
       data
     })
-  } catch (error: unknown) {
-    resMsg(res, 'User Not Fetched', error)
+  } catch (error: any) {
+    resMsg(res, 'Users fetched failed!', error, 'Server Problem')
   }
 }
 
@@ -53,17 +48,14 @@ const getUserByIdController = async (req: Request, res: Response) => {
   const getUserIdFromRequest = +req.params.userId
   try {
     const data = await userServices.getUser(getUserIdFromRequest)
-    if (!data) {
-      throw new Error('No Such User Found')
-    }
     res.send({
       success: true,
       message: 'User fetched successfully!',
       data
     })
-  } catch (error: unknown) {
+  } catch (error: any) {
     // errorMsg(response,message,error,description)
-    resMsg(res, 'User Not Fetched', error, 'UserId Mismatch/Missing')
+    resMsg(res, 'Users fetched failed!', error, 'Wrong Information Provided')
   }
 }
 
@@ -79,20 +71,20 @@ const updateUserByIdController = async (req: Request, res: Response) => {
         getUserIdFromRequest,
         getUserDataFromRequest
       )
-      const { status, data, error } = datas
-      if (!status?.modifiedCount) {
-        throw new Error(error || 'No Changes Occurred!')
-      }
       res.send({
         success: true,
-        message: 'Information updated successfully!',
-        data
+        message: `${
+          datas?.status?.modifiedCount
+            ? 'User updated successfully!'
+            : 'No changes in user information'
+        }`,
+        data: datas?.data
       })
     } else {
       throw result.error
     }
-  } catch (error: unknown) {
-    resMsg(res, 'Failed To Update Information', error, 'UserId Mismatch')
+  } catch (error: any) {
+    resMsg(res, 'User updated failed!', error, 'UserId Mismatch')
   }
 }
 
@@ -102,14 +94,16 @@ const deleteUserByIdController = async (req: Request, res: Response) => {
   try {
     const data = await userServices.deleteUser(getUserIdFromRequest)
     if (!data) {
-      throw new Error('No Such User Found')
+      const error: any = new Error('No User Data Found')
+      error.statusCode = 409
+      throw error
     }
     res.send({
       success: true,
       message: 'User deleted successfully!',
       data: null
     })
-  } catch (error: unknown) {
+  } catch (error: any) {
     resMsg(res, 'User Deleted Failed!', error, 'UserId Missing')
   }
 }
@@ -120,15 +114,17 @@ const getOrdersByIdController = async (req: Request, res: Response) => {
   try {
     const data = await userServices.getUserOrder(getUserIdFromRequest)
     if (!data) {
-      throw new Error('No Such User Found')
+      const error: any = new Error('No User Data Found')
+      error.statusCode = 409
+      throw error
     }
     res.send({
       success: true,
       message: 'Order fetched successfully!',
       data
     })
-  } catch (error: unknown) {
-    resMsg(res, 'Orders Fatching Failed!', error, 'UserId Missing')
+  } catch (error: any) {
+    resMsg(res, 'Orders fatched Failed!', error, 'UserId Missing')
   }
 }
 
@@ -138,7 +134,9 @@ const getTotalPriceController = async (req: Request, res: Response) => {
   try {
     const data = await userServices.getTotalPrice(getUserIdFromRequest)
     if (!data) {
-      throw new Error('No Such User Found')
+      const error: any = new Error('No User Data Found')
+      error.statusCode = 409
+      throw error
     }
     res.send({
       success: true,
@@ -163,7 +161,9 @@ const addOrderController = async (req: Request, res: Response) => {
         getUserDataFromRequest
       )
       if (!result) {
-        throw new Error('No Order Placed!')
+        const error: any = new Error('No User Data Found')
+        error.statusCode = 409
+        throw error
       }
       res.send({
         success: true,
@@ -174,7 +174,7 @@ const addOrderController = async (req: Request, res: Response) => {
       throw parseOrder.error
     }
   } catch (error: unknown) {
-    resMsg(res, 'User Added Failed!', error, 'UserId Missing')
+    resMsg(res, 'Order created failed!', error, 'UserId Missing')
   }
 }
 
