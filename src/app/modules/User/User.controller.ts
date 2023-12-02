@@ -19,10 +19,13 @@ const createUserController = async (req: Request, res: Response) => {
         data
       })
     } else {
+      // Zod Validation Error result.error
+      // 40o for bad request.
       // errorMsg(response,message,error,statusCode,description)
-      resMsg(res, 'User validation failed', result.error, 404)
+      resMsg(res, 'User validation failed', result.error, 400)
     }
   } catch (error) {
+    // 409 for conflicting of uniquness of field
     resMsg(res, 'User Not Created', error, 409)
   }
 }
@@ -44,13 +47,15 @@ const getUsersController = async (req: Request, res: Response) => {
 // Fetching a user by user ID.
 const getUserByIdController = async (req: Request, res: Response) => {
   const getUserIdFromRequest = +req.params.userId
+  // Check userId is number type or not
   if (isNaN(getUserIdFromRequest)) {
     return resMsg(res, 'User fetch failed!', null, 400, 'Invalid userId format')
   }
   try {
-    const data = await userServices.getUser(getUserIdFromRequest)
+    const data = await userServices.getUser(+getUserIdFromRequest)
+
     if (!data) {
-      // User not found
+      // Error message if no user found
       return resMsg(res, 'User not found!', null, 404, 'userId Not Matched')
     }
     res.status(200).json({
@@ -74,6 +79,7 @@ const updateUserByIdController = async (req: Request, res: Response) => {
         getUserIdFromRequest,
         getUserDataFromRequest
       )
+      // If information remain same after update then show No Changes as message
       res.status(200).json({
         success: true,
         message: `${
@@ -84,9 +90,11 @@ const updateUserByIdController = async (req: Request, res: Response) => {
         data: datas?.data
       })
     } else {
-      resMsg(res, 'User validation failed', result.error, 404)
+      // Zod Validation Error
+      resMsg(res, 'User validation failed', result.error, 400)
     }
   } catch (error: any) {
+    // updateUser function from service, return statusCode if no user exist
     resMsg(res, 'User updated failed!', error, error.statusCode || 409)
   }
 }
@@ -97,9 +105,10 @@ const deleteUserByIdController = async (req: Request, res: Response) => {
   try {
     const data = await userServices.deleteUser(getUserIdFromRequest)
     if (!data) {
+      // This function throw error if user is not found
       userNotFoundError()
     }
-    res.send({
+    res.status(200).json({
       success: true,
       message: 'User deleted successfully!',
       data: null
@@ -128,6 +137,7 @@ const getOrdersByIdController = async (req: Request, res: Response) => {
       data
     })
   } catch (error: any) {
+    // Got status code from userNotFoundError()
     resMsg(res, 'Orders fatched Failed!', error, error?.statusCode || 500)
   }
 }
@@ -143,7 +153,7 @@ const getTotalPriceController = async (req: Request, res: Response) => {
     if (!data) {
       userNotFoundError()
     }
-    res.send({
+    res.status(200).json({
       success: true,
       message: 'Total price calculated successfully!',
       data
@@ -174,6 +184,7 @@ const addOrderController = async (req: Request, res: Response) => {
         getUserIdFromRequest,
         getUserDataFromRequest
       )
+      // If user not found
       if (!data) {
         userNotFoundError()
       }
@@ -183,7 +194,8 @@ const addOrderController = async (req: Request, res: Response) => {
         data: null
       })
     } else {
-      resMsg(res, 'User validation failed', result.error, 404)
+      // Zod Validation Error
+      resMsg(res, 'User validation failed', result.error, 400)
     }
   } catch (error: any) {
     resMsg(res, 'Order created failed!', error, error?.statusCode || 500)

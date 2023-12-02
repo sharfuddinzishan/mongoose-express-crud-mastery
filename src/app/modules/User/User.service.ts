@@ -29,6 +29,7 @@ const getUsers = async () => {
 // Retrieve a user by user ID by hiding password and orders.
 const getUser = async (userId: number) => {
   try {
+    // isUserExist() is static function used to check user exist or not
     if (await User.isUserExist(userId)) {
       const result = await User.findOne(
         { userId },
@@ -50,9 +51,12 @@ const updateUser = async (userId: number, bodyParseData: TUser) => {
       const { password, ...data } = bodyParseData // Omit the password field.
       return { status, data }
     } else {
+      // This function used to send error response
       userNotFoundError()
     }
   } catch (error: any) {
+    // error.statusCode comes from userNotFoundError()
+    // 409 for unique constraint type error status
     error.statusCode = error?.statusCode || 409
     throw error
   }
