@@ -3,6 +3,7 @@ import { Request, Response } from 'express'
 import { OrdersValidator, UserZodValidator } from './User.validator.zod'
 import { userServices } from './User.service'
 import { resMsg } from '../../../utill/errorHandling'
+import { userNotFoundError } from '../../../utill/userNotFound'
 
 // Creating a new user.
 const createUserController = async (req: Request, res: Response) => {
@@ -18,11 +19,11 @@ const createUserController = async (req: Request, res: Response) => {
         data
       })
     } else {
-      throw result.error
+      // errorMsg(response,message,error,statusCode,description)
+      resMsg(res, 'User validation failed', result.error, 404)
     }
   } catch (error) {
-    // errorMsg(response,message,error,description)
-    resMsg(res, 'User Not Created', error, 'Wrong Information Provided')
+    resMsg(res, 'User Not Created', error, 409)
   }
 }
 
@@ -30,48 +31,54 @@ const createUserController = async (req: Request, res: Response) => {
 const getUsersController = async (req: Request, res: Response) => {
   try {
     const data = await userServices.getUsers()
-    if (!data.length) {
-      throw new Error('No Users Data Found')
-    }
-    res.status(201).json({
+    res.status(200).json({
       success: true,
       message: 'Users fetched successfully!',
       data
     })
   } catch (error: any) {
-    resMsg(res, 'Users fetched failed!', error, 'Server Problem')
+    resMsg(res, 'Users fetched failed!', error, 500)
   }
 }
 
 // Fetching a user by user ID.
 const getUserByIdController = async (req: Request, res: Response) => {
   const getUserIdFromRequest = +req.params.userId
+  if (isNaN(getUserIdFromRequest)) {
+    return resMsg(res, 'User fetch failed!', null, 400, 'Invalid userId format')
+  }
   try {
     const data = await userServices.getUser(getUserIdFromRequest)
-    res.send({
+    if (!data) {
+      // User not found
+      return resMsg(res, 'User not found!', null, 404, 'userId Not Matched')
+    }
+    res.status(200).json({
       success: true,
       message: 'User fetched successfully!',
       data
     })
-  } catch (error: any) {
-    // errorMsg(response,message,error,description)
-    resMsg(res, 'Users fetched failed!', error, 'Wrong Information Provided')
+  } catch (error) {
+    resMsg(res, 'User fetch failed!', error, 500)
   }
 }
 
-// Updating a user by user ID.
 const updateUserByIdController = async (req: Request, res: Response) => {
   const getUserDataFromRequest = req.body
   const getUserIdFromRequest = +req.params.userId
+  if (isNaN(getUserIdFromRequest)) {
+    return resMsg(res, 'User update failed!', null, 400, 'Wrong userId format')
+  }
   try {
     // Validate user data using the Zod schema.
     const result = UserZodValidator.safeParse(getUserDataFromRequest)
     if (result.success) {
+      console.log('Zod Done ')
       const datas = await userServices.updateUser(
         getUserIdFromRequest,
         getUserDataFromRequest
       )
-      res.send({
+      res.status(200).json({
         success: true,
         message: `${
           datas?.status?.modifiedCount
@@ -81,10 +88,10 @@ const updateUserByIdController = async (req: Request, res: Response) => {
         data: datas?.data
       })
     } else {
-      throw result.error
+      resMsg(res, 'User validation failed', result.error, 404)
     }
   } catch (error: any) {
-    resMsg(res, 'User updated failed!', error, 'UserId Mismatch')
+    resMsg(res, 'User updated failed!', error, error.statusCode || 409)
   }
 }
 
@@ -94,9 +101,7 @@ const deleteUserByIdController = async (req: Request, res: Response) => {
   try {
     const data = await userServices.deleteUser(getUserIdFromRequest)
     if (!data) {
-      const error: any = new Error('No User Data Found')
-      error.statusCode = 409
-      throw error
+      userNotFoundError()
     }
     res.send({
       success: true,
@@ -104,7 +109,7 @@ const deleteUserByIdController = async (req: Request, res: Response) => {
       data: null
     })
   } catch (error: any) {
-    resMsg(res, 'User Deleted Failed!', error, 'UserId Missing')
+    resMsg(res, 'User Deleted Failed!', error, 500, 'UserId Missing')
   }
 }
 
@@ -114,9 +119,7 @@ const getOrdersByIdController = async (req: Request, res: Response) => {
   try {
     const data = await userServices.getUserOrder(getUserIdFromRequest)
     if (!data) {
-      const error: any = new Error('No User Data Found')
-      error.statusCode = 409
-      throw error
+      userNotFoundError()
     }
     res.send({
       success: true,
@@ -124,7 +127,7 @@ const getOrdersByIdController = async (req: Request, res: Response) => {
       data
     })
   } catch (error: any) {
-    resMsg(res, 'Orders fatched Failed!', error, 'UserId Missing')
+    resMsg(res, 'Orders fatched Failed!', error, 500, 'UserId Missing')
   }
 }
 
@@ -134,9 +137,7 @@ const getTotalPriceController = async (req: Request, res: Response) => {
   try {
     const data = await userServices.getTotalPrice(getUserIdFromRequest)
     if (!data) {
-      const error: any = new Error('No User Data Found')
-      error.statusCode = 409
-      throw error
+      userNotFoundError()
     }
     res.send({
       success: true,
@@ -144,7 +145,7 @@ const getTotalPriceController = async (req: Request, res: Response) => {
       data
     })
   } catch (error: unknown) {
-    resMsg(res, 'Failed To Calculate Total!', error, 'UserId Missing')
+    resMsg(res, 'Failed To Calculate Total!', error, 500, 'UserId Missing')
   }
 }
 
@@ -161,9 +162,7 @@ const addOrderController = async (req: Request, res: Response) => {
         getUserDataFromRequest
       )
       if (!result) {
-        const error: any = new Error('No User Data Found')
-        error.statusCode = 409
-        throw error
+        userNotFoundError()
       }
       res.send({
         success: true,
@@ -174,7 +173,7 @@ const addOrderController = async (req: Request, res: Response) => {
       throw parseOrder.error
     }
   } catch (error: unknown) {
-    resMsg(res, 'Order created failed!', error, 'UserId Missing')
+    resMsg(res, 'Order created failed!', error, 500, 'UserId Missing')
   }
 }
 

@@ -5,14 +5,16 @@ export const resMsg = (
   res: Response,
   message: string,
   err: any,
+  code: number,
   desc: string = ''
 ) => {
-  return res.send({
+  return res.status(code).json({
     success: false,
     message,
     error: {
-      code: err?.statusCode || 500,
-      description: err?.issues || err?.message || err || desc
+      code: code || err?.statusCode || 500,
+      description:
+        err?.issues || err?.message || err || desc || 'Internal Server Error'
     }
   })
 }

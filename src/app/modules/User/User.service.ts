@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { userNotFoundError } from '../../../utill/userNotFound'
 import { TUser } from './User.interface'
 import { User } from './User.model'
 
@@ -11,15 +12,9 @@ const createUser = async (getData: TUser) => {
   ##  If a userId is provided, return that same userId.
   ##  During user creation, check if the provided userId is unique using a schema model.
 */
-  try {
-    const userId = await User.generatedId(getData.userId || 0)
-
-    const result = await User.create({ ...getData, userId })
-    return result
-  } catch (error: any) {
-    error.statusCode = 409
-    throw error
-  }
+  const userId = await User.generatedId(getData.userId || 0)
+  const result = await User.create({ ...getData, userId })
+  return result
 }
 
 // Retrieve a list of users with limited properties.
@@ -33,32 +28,32 @@ const getUsers = async () => {
 
 // Retrieve a user by user ID by hiding password and orders.
 const getUser = async (userId: number) => {
-  if (await User.isUserExist(userId)) {
-    const result = await User.findOne(
-      { userId },
-      { _id: 0, orders: 0, password: 0 }
-    )
-    return result
-  } else {
-    const error: any = new Error('No User Data Found')
-    error.statusCode = 409
-    throw error
+  try {
+    if (await User.isUserExist(userId)) {
+      const result = await User.findOne(
+        { userId },
+        { _id: 0, orders: 0, password: 0 }
+      )
+      return result
+    }
+  } catch (error) {
+    return error
   }
 }
 
-// Update user information by user ID.
-// This function return {status,data,error}
-// For success, error is null
 const updateUser = async (userId: number, bodyParseData: TUser) => {
-  if (await User.isUserExist(userId)) {
-    // Update user data while excluding the password field.
-    const status = await User.updateOne({ userId: userId }, bodyParseData)
-    // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
-    const { password, ...data } = bodyParseData // Omit the password field.
-    return { status, data, error: null }
-  } else {
-    const error: any = new Error('No User Data Found')
-    error.statusCode = 409
+  try {
+    if (await User.isUserExist(userId)) {
+      // Update user data while excluding the password field.
+      const status = await User.updateOne({ userId }, bodyParseData)
+      // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
+      const { password, ...data } = bodyParseData // Omit the password field.
+      return { status, data }
+    } else {
+      userNotFoundError()
+    }
+  } catch (error: any) {
+    error.statusCode = error?.statusCode || 409
     throw error
   }
 }
