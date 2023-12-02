@@ -1,6 +1,8 @@
 import { Schema, model } from 'mongoose'
 import { TAddress, TOrders, TUser, UserModel } from './User.interface'
 import validator from 'validator'
+import bcrypt from 'bcrypt'
+import config from '../../config'
 
 const OrdersSchema = new Schema<TOrders>(
   {
@@ -134,6 +136,15 @@ UserSchema.statics.isUserExist = async function (userId: number) {
   const isExist = await User.findOne({ userId })
   return isExist
 }
+
+// Hash password by bycrypt
+UserSchema.pre('save', async function (next) {
+  // eslint-disable-next-line @typescript-eslint/no-this-alias, prefer-const
+  let user = this
+  const hash = await bcrypt.hashSync(user.password, Number(config.salt_rounds))
+  user.password = hash
+  next()
+})
 
 /*
   - Post Middleware For After User Creation
