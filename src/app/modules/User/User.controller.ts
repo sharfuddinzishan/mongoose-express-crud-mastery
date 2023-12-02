@@ -66,14 +66,10 @@ const getUserByIdController = async (req: Request, res: Response) => {
 const updateUserByIdController = async (req: Request, res: Response) => {
   const getUserDataFromRequest = req.body
   const getUserIdFromRequest = +req.params.userId
-  if (isNaN(getUserIdFromRequest)) {
-    return resMsg(res, 'User update failed!', null, 400, 'Wrong userId format')
-  }
   try {
     // Validate user data using the Zod schema.
     const result = UserZodValidator.safeParse(getUserDataFromRequest)
     if (result.success) {
-      console.log('Zod Done ')
       const datas = await userServices.updateUser(
         getUserIdFromRequest,
         getUserDataFromRequest
@@ -116,24 +112,32 @@ const deleteUserByIdController = async (req: Request, res: Response) => {
 // Fetching a orders by userId.
 const getOrdersByIdController = async (req: Request, res: Response) => {
   const getUserIdFromRequest = +req.params.userId
+  if (isNaN(getUserIdFromRequest)) {
+    return resMsg(res, 'User fetch failed!', null, 400, 'Invalid userId format')
+  }
   try {
     const data = await userServices.getUserOrder(getUserIdFromRequest)
     if (!data) {
       userNotFoundError()
     }
-    res.send({
+    res.status(200).json({
       success: true,
-      message: 'Order fetched successfully!',
+      message: `${
+        data ? 'Order fetched successfully!' : 'User Have No Order!'
+      }`,
       data
     })
   } catch (error: any) {
-    resMsg(res, 'Orders fatched Failed!', error, 500, 'UserId Missing')
+    resMsg(res, 'Orders fatched Failed!', error, error?.statusCode || 500)
   }
 }
 
 // Calculating the sum of price from orders of a user.
 const getTotalPriceController = async (req: Request, res: Response) => {
   const getUserIdFromRequest = +req.params.userId
+  if (isNaN(getUserIdFromRequest)) {
+    return resMsg(res, 'User fetch failed!', null, 400, 'Invalid userId format')
+  }
   try {
     const data = await userServices.getTotalPrice(getUserIdFromRequest)
     if (!data) {
@@ -144,8 +148,14 @@ const getTotalPriceController = async (req: Request, res: Response) => {
       message: 'Total price calculated successfully!',
       data
     })
-  } catch (error: unknown) {
-    resMsg(res, 'Failed To Calculate Total!', error, 500, 'UserId Missing')
+  } catch (error: any) {
+    resMsg(
+      res,
+      'Failed To Calculate Total!',
+      error,
+      error?.statusCode || 500,
+      'UserId Missing'
+    )
   }
 }
 
@@ -153,27 +163,30 @@ const getTotalPriceController = async (req: Request, res: Response) => {
 const addOrderController = async (req: Request, res: Response) => {
   const getUserDataFromRequest = req.body
   const getUserIdFromRequest = +req.params.userId
+  if (isNaN(getUserIdFromRequest)) {
+    return resMsg(res, 'User fetch failed!', null, 400, 'Invalid userId format')
+  }
   try {
     // Validate order data using the Zod Order schema.
-    const parseOrder = OrdersValidator.safeParse(getUserDataFromRequest)
-    if (parseOrder.success) {
-      const result = await userServices.addOrder(
+    const result = OrdersValidator.safeParse(getUserDataFromRequest)
+    if (result.success) {
+      const data = await userServices.addOrder(
         getUserIdFromRequest,
         getUserDataFromRequest
       )
-      if (!result) {
+      if (!data) {
         userNotFoundError()
       }
-      res.send({
+      res.status(200).json({
         success: true,
         message: 'Order created successfully!',
         data: null
       })
     } else {
-      throw parseOrder.error
+      resMsg(res, 'User validation failed', result.error, 404)
     }
-  } catch (error: unknown) {
-    resMsg(res, 'Order created failed!', error, 500, 'UserId Missing')
+  } catch (error: any) {
+    resMsg(res, 'Order created failed!', error, error?.statusCode || 500)
   }
 }
 
