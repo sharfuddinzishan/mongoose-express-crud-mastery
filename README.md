@@ -10,13 +10,13 @@ Mongoose Express CRUD Mastery.
 
 ## Built With
 
-- Express: Web framework for Node.js
-- Mongoose: MongoDB object modeling tool
-- bcrypt: Password hashing library
-- Cors: Cross-Origin Resource Sharing middleware
-- Validator: Input validation library
-- Zod: Type-safe schema declaration for JavaScript
-- TypeScript: A superset of JavaScript that adds static typing to the language
+- **Express:** Web framework for Node.js
+- **Mongoose:** MongoDB object modeling tool
+- **bcrypt:** Password hashing library
+- **Cors:** Cross-Origin Resource Sharing middleware
+- **Validator:** Input validation library
+- **Zod:** Type-safe schema declaration for JavaScript
+- **TypeScript:** A superset of JavaScript that adds static typing to the language
 
 ## Getting Started
 
@@ -54,7 +54,9 @@ Before you begin, ensure you have the following installed on your machine:
    ```
 5. Check API on Browser. Open broweser and navigate to [http://localhost:your_preferred_port/api/users](http://localhost:your_preferred_port/api/users). If the API is set up correctly, then response displayed.
 
-# Input Requirements For API Testing
+# API Testing
+
+## Input Requirements For This Project
 
 ### Orders
 
@@ -86,3 +88,40 @@ Before you begin, ensure you have the following installed on your machine:
 - `isActive` is a boolean and defaults to true.
 - `address` follows the Address requirements.
 - `orders` is optional but, if provided, should be an array following the Orders requirements.
+
+# API Documentation
+
+## Status Codes
+
+### 404 Not Found - User Not Exist
+
+- **Description:** Returned when the requested user is not found in the system.
+- **Example Scenario:** Trying to retrieve information for a user that does not exist.
+
+### 400 Bad Request - Wrong UserId Input
+
+- **Description:** userId in the request is an unexpected format (For example, expected number instead of a string).
+- **Example Scenario:** Attempting to update a user with an invalid userId format like '1'.
+
+### 201 Created - Order Added Successfully
+
+- **Description:** \New order has been successfully created.
+- **Example Scenario:** Adding an order to a user.
+
+### 400 Bad Request - Zod Validation Error
+
+- **Description:** Find validation error in the client's request, based on Zod schema validation.
+- **Example Scenario:** Providing invalid data that doesn't conform to the expected schema.
+
+### 409 Conflict - Unique Constraint Conflict
+
+- **Description:** Conflict of uniqueness in fields during user creation (For example, duplicate userId, email, or username).
+- **Example Scenario:** Trying to create a user with a userId, email, or username that is already in used by another user.
+
+---
+
+# Developed By
+
+[Sharfuddin Ahamed](https://sharfuddin.com.bd)
+
+---
