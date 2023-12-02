@@ -17,7 +17,6 @@ app.use(cors())
 dbconnect()
 
 const logger = (req: Request, res: Response, next: NextFunction) => {
-  console.log('Logger')
   next()
 }
 
