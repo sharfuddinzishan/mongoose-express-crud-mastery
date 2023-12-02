@@ -6,7 +6,7 @@ Mongoose Express CRUD Mastery.
 
 [CRUD Mastery API](https://crud.sharfuddin.com.bd)
 
-[VERCEL Link](https://crud-xi-coral.vercel.app)
+[VERCEL](https://crud-xi-coral.vercel.app)
 
 ## Built With
 
