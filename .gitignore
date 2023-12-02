@@ -4,3 +4,4 @@ dist/
 # Ignore npm lock file
 package-lock.json
 .env
+.vercel
