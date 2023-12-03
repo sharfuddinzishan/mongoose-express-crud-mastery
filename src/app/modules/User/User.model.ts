@@ -3,6 +3,7 @@ import { TAddress, TOrders, TUser, UserModel } from './User.interface'
 import validator from 'validator'
 import bcrypt from 'bcrypt'
 import config from '../../config'
+// const passwordHash = require('password-hash')
 
 const OrdersSchema = new Schema<TOrders>(
   {
@@ -142,6 +143,7 @@ UserSchema.pre('save', async function (next) {
   // eslint-disable-next-line @typescript-eslint/no-this-alias, prefer-const
   let user = this
   const hash = await bcrypt.hashSync(user.password, Number(config.salt_rounds))
+  // const hash = await passwordHash.generate(user.password)
   user.password = hash
   next()
 })
