@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 import { Schema, model } from 'mongoose'
 import { TAddress, TOrders, TUser, UserModel } from './User.interface'
 import validator from 'validator'

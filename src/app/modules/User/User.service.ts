@@ -4,14 +4,14 @@ import { TUser } from './User.interface'
 import { User } from './User.model'
 
 // Create a new user in the database.
-const createUser = async (getData: TUser) => {
-  /*
+/*
   ##  If no userId is provided:
         * If the database has no users, return 1.
         * Otherwise, add 1 to the last sorted userId from the Users collection.
   ##  If a userId is provided, return that same userId.
   ##  During user creation, check if the provided userId is unique using a schema model.
 */
+const createUser = async (getData: TUser) => {
   const userId = await User.generatedId(getData.userId || 0)
   const result = await User.create({ ...getData, userId })
   return result
@@ -46,10 +46,10 @@ const updateUser = async (userId: number, bodyParseData: TUser) => {
   try {
     if (await User.isUserExist(userId)) {
       // Update user data while excluding the password field.
-      const status = await User.updateOne({ userId }, bodyParseData)
+      const updateData = await User.updateOne({ userId }, bodyParseData)
       // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
-      const { password, ...data } = bodyParseData // Omit the password field.
-      return { status, data }
+      const { password, ...restdata } = bodyParseData // Omit the password field.
+      return { updateData, restdata }
     } else {
       // This function used to send error response
       userNotFoundError()

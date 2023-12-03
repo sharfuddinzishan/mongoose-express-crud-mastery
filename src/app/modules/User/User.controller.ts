@@ -47,9 +47,9 @@ const getUsersController = async (req: Request, res: Response) => {
 // Fetching a user by user ID.
 const getUserByIdController = async (req: Request, res: Response) => {
   const getUserIdFromRequest = +req.params.userId
-  // Check userId is number type or not
+  // Check Param userId is number type or not
   if (isNaN(getUserIdFromRequest)) {
-    return resMsg(res, 'User fetch failed!', null, 400, 'Invalid userId format')
+    return resMsg(res, 'User not found!', null, 400, 'Invalid userId format')
   }
   try {
     const data = await userServices.getUser(+getUserIdFromRequest)
@@ -71,9 +71,13 @@ const getUserByIdController = async (req: Request, res: Response) => {
 const updateUserByIdController = async (req: Request, res: Response) => {
   const getUserDataFromRequest = req.body
   const getUserIdFromRequest = +req.params.userId
+  // Check Param userId is number type or not
+  if (isNaN(getUserIdFromRequest)) {
+    return resMsg(res, 'User not found!', null, 400, 'Invalid userId')
+  }
   try {
     // Validate user data using the Zod schema.
-    const result = UserZodValidator.safeParse(getUserDataFromRequest)
+    const result = await UserZodValidator.safeParse(getUserDataFromRequest)
     if (result.success) {
       const datas = await userServices.updateUser(
         getUserIdFromRequest,
@@ -83,11 +87,11 @@ const updateUserByIdController = async (req: Request, res: Response) => {
       res.status(200).json({
         success: true,
         message: `${
-          datas?.status?.modifiedCount
+          datas?.updateData?.modifiedCount
             ? 'User updated successfully!'
             : 'No changes in user information'
         }`,
-        data: datas?.data
+        data: datas?.restdata
       })
     } else {
       // Zod Validation Error
@@ -102,6 +106,10 @@ const updateUserByIdController = async (req: Request, res: Response) => {
 // Deleting a user by user ID.
 const deleteUserByIdController = async (req: Request, res: Response) => {
   const getUserIdFromRequest = +req.params.userId
+  // Check Param userId is number type or not
+  if (isNaN(getUserIdFromRequest)) {
+    return resMsg(res, 'User not found!', null, 400, 'Invalid userId')
+  }
   try {
     const data = await userServices.deleteUser(getUserIdFromRequest)
     if (!data) {
@@ -114,7 +122,13 @@ const deleteUserByIdController = async (req: Request, res: Response) => {
       data: null
     })
   } catch (error: any) {
-    resMsg(res, 'User Deleted Failed!', error, 500, 'UserId Missing')
+    resMsg(
+      res,
+      'User deleted failed!',
+      error,
+      error?.statusCode || 500,
+      'UserId Missing'
+    )
   }
 }
 
@@ -122,7 +136,7 @@ const deleteUserByIdController = async (req: Request, res: Response) => {
 const getOrdersByIdController = async (req: Request, res: Response) => {
   const getUserIdFromRequest = +req.params.userId
   if (isNaN(getUserIdFromRequest)) {
-    return resMsg(res, 'User fetch failed!', null, 400, 'Invalid userId format')
+    return resMsg(res, 'User not found!', null, 400, 'Invalid userId format')
   }
   try {
     const data = await userServices.getUserOrder(getUserIdFromRequest)
@@ -146,7 +160,7 @@ const getOrdersByIdController = async (req: Request, res: Response) => {
 const getTotalPriceController = async (req: Request, res: Response) => {
   const getUserIdFromRequest = +req.params.userId
   if (isNaN(getUserIdFromRequest)) {
-    return resMsg(res, 'User fetch failed!', null, 400, 'Invalid userId format')
+    return resMsg(res, 'User not found!', null, 400, 'Invalid userId format')
   }
   try {
     const data = await userServices.getTotalPrice(getUserIdFromRequest)
@@ -174,7 +188,7 @@ const addOrderController = async (req: Request, res: Response) => {
   const getUserDataFromRequest = req.body
   const getUserIdFromRequest = +req.params.userId
   if (isNaN(getUserIdFromRequest)) {
-    return resMsg(res, 'User fetch failed!', null, 400, 'Invalid userId format')
+    return resMsg(res, 'User not found!', null, 400, 'Invalid userId format')
   }
   try {
     // Validate order data using the Zod Order schema.
