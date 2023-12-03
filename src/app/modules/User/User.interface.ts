@@ -30,6 +30,7 @@ export type TUser = {
   hobbies: string[]
   address?: TAddress
   isActive: boolean
+  isDeleted?: boolean
   orders?: TOrders[] // Optional property for user orders.
 }
 
@@ -39,4 +40,5 @@ export interface UserModel extends Model<TUser> {
   generatedTotal(getId: number): Promise<void> // Total Price Calculate
   generatedId(getId: number): Promise<void> // Auto UserId generated if not provided in input
   isUserExist(userId: number): Promise<TUser | null>
+  isUserDeleted(userId: number): Promise<boolean>
 }

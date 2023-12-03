@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-import { Schema, model } from 'mongoose'
+import { Document, Query, Schema, model } from 'mongoose'
 import { TAddress, TOrders, TUser, UserModel } from './User.interface'
 import validator from 'validator'
 import bcrypt from 'bcrypt'
@@ -53,6 +53,7 @@ const UserSchema = new Schema<TUser, UserModel>(
     hobbies: { type: [String], min: 1, max: 10 },
     address: AddressSchema,
     isActive: { type: Boolean, default: true },
+    isDeleted: { type: Boolean, default: false },
     orders: [OrdersSchema]
   },
   { versionKey: false }
@@ -139,6 +140,26 @@ UserSchema.statics.isUserExist = async function (userId: number) {
   return isExist
 }
 
+// Static Method To Check User Deleted or Not
+UserSchema.statics.isUserDeleted = async function (userId: number) {
+  const isDeleted = await User.aggregate([
+    {
+      $match: { $and: [{ userId }, { isDeleted: { $eq: true } }] }
+    },
+    {
+      $project: { isDeleted: 1, _id: 0 }
+    }
+  ])
+  return isDeleted[0]?.isDeleted
+}
+
+// Define a pre middleware for all find operations
+// It also works on updateOne as treats this as findOne
+UserSchema.pre(/^find/, function (this: Query<TUser[], Document>, next) {
+  this.find({ isDeleted: { $ne: true } })
+  next()
+})
+
 // Hash password by bycrypt
 UserSchema.pre('save', async function (next) {
   // eslint-disable-next-line @typescript-eslint/no-this-alias, prefer-const
@@ -156,7 +177,8 @@ UserSchema.pre('save', async function (next) {
 UserSchema.post('save', async function (docs, next) {
   docs.toJSON = function () {
     // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
-    const { password, orders, _id, ...userWithoutOrders } = this.toObject()
+    const { password, orders, _id, isDeleted, ...userWithoutOrders } =
+      this.toObject()
     return userWithoutOrders
   }
   next()

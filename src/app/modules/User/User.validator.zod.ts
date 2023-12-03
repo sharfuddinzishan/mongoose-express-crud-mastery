@@ -94,6 +94,12 @@ export const UserZodValidator = z
     orders: z
       .array(OrdersValidator)
       .optional()
-      .describe('Optional but, if provided, should be an array')
+      .describe('Optional but, if provided, should be an array'),
+    isDeleted: z
+      .boolean()
+      .default(false)
+      .describe(
+        'If user delete then status is true. Otherwise false during new user creation'
+      )
   })
   .strict()

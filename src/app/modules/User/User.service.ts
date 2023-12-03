@@ -27,13 +27,55 @@ const getUsers = async () => {
 }
 
 // Retrieve a user by user ID by hiding password and orders.
+// const getUser = async (userId: number) => {
+//   try {
+//     // isUserExist() is static function used to check user exist or not
+//     if (await User.isUserExist(userId)) {
+//       const result = await User.findOne(
+//         { userId },
+//         { _id: 0, orders: 0, password: 0, isDeleted: 0 }
+//       )
+//       return result
+//     }
+//   } catch (error) {
+//     return error
+//   }
+// }
+
+// const updateUser = async (userId: number, bodyParseData: TUser) => {
+//   try {
+//     if (await User.isUserExist(userId)) {
+//       if (!(await User.isUserDeleted(userId))) {
+//         // Update user data while excluding the password field.
+//         const updateData = await User.updateOne({ userId }, bodyParseData)
+//         // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
+//         const { password, ...restdata } = bodyParseData // Omit the password field.
+//         return { updateData, restdata }
+//       } else {
+//         // This function used to send error response
+//         userNotFoundError()
+//       }
+//     } else {
+//       // This function used to send error response
+//       userNotFoundError()
+//     }
+//   } catch (error: any) {
+//     // error.statusCode comes from userNotFoundError()
+//     // 409 for unique constraint type error status
+//     error.statusCode = error?.statusCode || 409
+//     throw error
+//   }
+// }
+
+// Delete a user by user ID.
+
 const getUser = async (userId: number) => {
   try {
     // isUserExist() is static function used to check user exist or not
     if (await User.isUserExist(userId)) {
       const result = await User.findOne(
         { userId },
-        { _id: 0, orders: 0, password: 0 }
+        { _id: 0, orders: 0, password: 0, isDeleted: 0 }
       )
       return result
     }
@@ -44,11 +86,16 @@ const getUser = async (userId: number) => {
 
 const updateUser = async (userId: number, bodyParseData: TUser) => {
   try {
-    if (await User.isUserExist(userId)) {
+    // Check user exist in database also delete status is true or not
+    // Deleted user can not update, add order, show information
+    if (
+      (await User.isUserExist(userId)) &&
+      !(await User.isUserDeleted(userId))
+    ) {
       // Update user data while excluding the password field.
       const updateData = await User.updateOne({ userId }, bodyParseData)
       // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
-      const { password, ...restdata } = bodyParseData // Omit the password field.
+      const { password, isDeleted, ...restdata } = bodyParseData // Omit the password field.
       return { updateData, restdata }
     } else {
       // This function used to send error response
@@ -62,10 +109,10 @@ const updateUser = async (userId: number, bodyParseData: TUser) => {
   }
 }
 
-// Delete a user by user ID.
 const deleteUser = async (userId: number) => {
   if (await User.isUserExist(userId)) {
-    const result = await User.deleteOne({ userId })
+    // const result = await User.deleteOne({ userId })
+    const result = await User.updateOne({ userId }, { isDeleted: true })
     return result
   } else {
     return false
